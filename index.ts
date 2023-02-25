@@ -1,6 +1,6 @@
 import './style.css';
 
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
 
 // https://rxjs.dev/guide/observable
 
@@ -135,5 +135,56 @@ const fooObs = new Observable((subscriber) => {
 // observable.subscribe((x) => console.log(x));
 
 // A subscribe call is simply a way to start an "Observable execution" and deliver values or events to an Observer of that execution.
-
 // --- EXMPL - 5 - end
+
+// --- EXMPL - 6 - begin
+const obsAfterComplete = new Observable(function subscribe(subscriber) {
+  subscriber.next(1);
+  subscriber.next(2);
+  subscriber.next(3);
+  subscriber.complete();
+  subscriber.next(4); // Is not delivered because it would violate the contract
+});
+// obsAfterComplete.subscribe((x) => console.log(x));
+
+const obsTryCatch = new Observable(function subscribe(subscriber) {
+  try {
+    subscriber.next('23');
+    subscriber.next('45');
+    subscriber.next('73');
+    subscriber.complete();
+  } catch (err) {
+    subscriber.error(err); // delivers an error if it caught one
+  }
+});
+// obsTryCatch.subscribe((x) => console.log(x));
+
+// --- EXMPL - 6 - end
+
+// --- EXMPL - 7 - begin
+
+// -- 1
+const obsFrom = from([10, 20, 30]);
+const subscription = obsFrom.subscribe((x) => console.log(x)); // start obs
+// Later for stop using memory resources
+subscription.unsubscribe();
+// -- 1
+
+// -- 2
+// emps unsubscribe and stop interval
+// function subscribe(subscriber) {
+//   const intervalId = setInterval(() => {
+//     subscriber.next('hi 1');
+//   }, 1000);
+
+//   return function unsubscribe() {
+//     clearInterval(intervalId);
+//   };
+// }
+// const unsubscribe = subscribe({ next: (x) => console.log(x) });
+
+// // Later:
+// unsubscribe(); // dispose the resources
+// -- 2
+
+// --- EXMPL - 7 - end
